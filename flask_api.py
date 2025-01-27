@@ -1,17 +1,20 @@
 from flask import Flask, request, jsonify
 import boto3
 from botocore.exceptions import ClientError
+from flask_cors import CORS
+
 import hmac
 import hashlib
 import base64
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # AWS Cognito configuration
-AWS_REGION = "your-region-here"  # Replace with your AWS region
-USER_POOL_ID = "your-user-pool-id"  # Replace with your Cognito User Pool ID
-CLIENT_ID = "your-client-id"  # Replace with your Cognito App Client ID
-CLIENT_SECRET = "your-client-secret"  # Replace with your Cognito App Client ID
+AWS_REGION = "us-east-2"  # Replace with your AWS region
+USER_POOL_ID = "us-east-2_NhN23W8JO"  # Replace with your Cognito User Pool ID
+CLIENT_ID = "727jljs4sigeks0t2k868b458a"  # Replace with your Cognito App Client ID
+CLIENT_SECRET = "1fj8704c4v8cr1t8rl41bo96u5rgikae3sjs0bv9rg3o58602sq9"  # Replace with your Cognito App Client ID
 
 @app.route('/auth/signin', methods=['POST'])
 def signin():
@@ -65,6 +68,10 @@ def signup():
             ClientId=CLIENT_ID
         )
         return jsonify({"access_token": auth_response['AuthenticationResult']['AccessToken']}), 200
+    except client.exceptions.UserNotConfirmedException:
+        return jsonify({
+            "message": "Check your email, we sent an OTP code."
+        }), 403
     except ClientError as e:
         return jsonify({"error": str(e)}), 400
 
@@ -98,7 +105,7 @@ def forgot_password():
             SecretHash=secret_hash,
             Username=email
         )
-        return jsonify({"message": "Verification code sent to your email"}), 200
+        return jsonify({"message": "Verification code sent to your email" }), 200
     except ClientError as e:
         return jsonify({"error": str(e)}), 400
     except client.exceptions.UserNotFoundException:
@@ -108,8 +115,8 @@ def forgot_password():
 def reset_password():
     data = request.json
     email = data.get('email')
-    otp = data.get('otp')
-    new_password = data.get('new_password')
+    otp = data.get('code')
+    new_password = data.get('password')
     client = boto3.client('cognito-idp', region_name=AWS_REGION)
     try:
         secret_hash = generate_secret_hash(CLIENT_ID, CLIENT_SECRET, email)
@@ -124,6 +131,17 @@ def reset_password():
 
     except ClientError as e:
         return jsonify({"error": str(e)}), 400
+    
+    except client.exceptions.CodeMismatchException:
+      return jsonify({"error": "Invalid verification code"}), 400
+    
+    except client.exceptions.ExpiredCodeException:
+      return jsonify({"error": "Verification code expired"}), 400
+    
+    except client.exceptions.UserNotFoundException:
+      return jsonify({"error": "User not found"}), 404
+
+
 
     
 def generate_secret_hash(client_id, client_secret, username):
