@@ -43,7 +43,6 @@ def signin():
             },
             ClientId=CLIENT_ID
         )
-        print('signin response', response)
         return jsonify({"access_token": response['AuthenticationResult']['AccessToken']}), 200
     except ClientError as e:
         return jsonify({"error": str(e)}), 401
