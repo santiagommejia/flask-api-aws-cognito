@@ -27,7 +27,7 @@ jwks_response = requests.get(COGNITO_JWKS_URL)
 jwks = jwks_response.json()
 
 @app.route('/getData', methods=['GET'])
-def getAircrafts():
+def getData():
     token = request.headers.get('Authorization')
     if not token:
         return jsonify({'error': 'Authorization token is missing'}), 401
@@ -171,31 +171,6 @@ def reset_password():
     
     except client.exceptions.UserNotFoundException:
       return jsonify({"error": "User not found"}), 404
-    
-# @app.route('/auth/validate-token', methods=['POST'])
-# def validate_token():
-#     token = request.headers.get('Authorization')
-#     if not token:
-#         return jsonify({'error': 'Authorization token is missing'}), 401
-
-#     try:
-#         if token.startswith('Bearer '):
-#             token = token.split(' ')[1]
-
-#         decoded_token = jwt.decode(
-#             token,
-#             key=get_public_key(jwt.get_unverified_header(token), jwks),
-#             algorithms=['RS256'],
-#             audience=CLIENT_ID if "aud" in jwt.decode(token, options={"verify_signature": False}) else None,
-#             issuer=COGNITO_ISSUER
-#         )
-
-#         print("Token Decoded Successfully:", decoded_token)
-#         return jsonify({'message': 'Token is valid', 'decoded_token': decoded_token}), 200
-
-#     except InvalidTokenError as e:
-#         print("Token Validation Failed:", e)
-#         return jsonify({'error': 'Invalid token', 'details': str(e)}), 401
 
 def validateToken(token):
     try:
