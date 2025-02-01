@@ -7,11 +7,11 @@ This project is a Python-based Flask API for user authentication using AWS Cogni
 2. **Sign Up**: Register a new user.
 3. **Forgot Password**: Initiate a password reset for a user.
 4. **Reset Password**: Reset the user's password using a verification code.
-5. **Validate Token**: Validate the Authorization token.
+5. **Get Data**: Dummy method to show how the token should be validated on any secure endpoint.
 
 ## Features
 - Secure authentication using AWS Cognito.
-- Support for **Sign In**, **Sign Up**, and **Password Reset** flows.
+- Support for **Sign In**, **Sign Up**, **Forgot Password**, and **Password Reset** flows.
 - Integration with AWS SDK via `boto3`.
 
 ---
@@ -154,10 +154,10 @@ Reset a user’s password using the OTP.
 
 ---
 
-### **5. Validate Token**
+### **5. Get Data**
 Validate the token received in the Authorization header.
-- **Endpoint**: `/auth/validate-token`
-- **Method**: `POST`
+- **Endpoint**: `/getData`
+- **Method**: `GET`
 - **Headers**:
   ```
   Authorization: Bearer <your-token-here>
@@ -165,7 +165,7 @@ Validate the token received in the Authorization header.
 - **Response**:
   ```json
   {
-    "message": "Password reset successful"
+    ... your response here ...
   }
   ```
 
